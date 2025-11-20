@@ -2,7 +2,9 @@
 
 ## Overview
 
-This project presents a comparative study examining Maximum Extractable Value (MEV) across different blockchain networks and cross-chain environments, with a focus on quantifying the economic impacts of these extractable values.
+This repository accompanies the research paper exploring cross-chain MEV, its economics, latency costs, and DeFI operations data between Solana and Ethereum.
+
+This project and research paper presents a comparative study examining Maximum Extractable Value (MEV) across different blockchain networks and cross-chain environments, with a focus on quantifying the economic impacts of these extractable values.
 
 ## Abstract
 
@@ -45,11 +47,7 @@ Maximum Extractable Value (MEV) represents the profit a miner or validator can m
 
 ## License
 
-[To be documented]
-
-## Contact
-
-[To be documented]
+MIT
 
 ## References
 
