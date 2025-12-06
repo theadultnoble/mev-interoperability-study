@@ -28,31 +28,47 @@ async function jsonToCsv() {
       throw new Error("transactions.json must contain an array");
     }
 
-    // Extract flattened fields from each transaction
-    const rows = transactions.map((tx) => {
-      const ops = tx.operations ? tx.operations[0] : {};
-      const sourceChain = tx.sourceChain || {};
-      const targetChain = tx.targetChain || {};
-      const content = ops.content || {};
-      const payload = content.payload || {};
-      const standardProps = content.standarizedProperties || {};
+    // Flatten: each transaction has operations array
+    // Each operation contains sourceChain, targetChain, data
+    const rows = [];
+    transactions.forEach((tx) => {
+      const operations = tx.operations || [];
 
-      return {
-        sequence: ops.sequence || "",
-        fromChain: sourceChain.chainId || "",
-        fromAddress: sourceChain.from || "",
-        toChain: targetChain.chainId || "",
-        toAddress: standardProps.toAddress || "",
-        tokenAddress: standardProps.tokenAddress || "",
-        amount: standardProps.amount || "",
-        fee: standardProps.fee || "",
-        txHashSource: sourceChain.transaction?.txHash || "",
-        txHashTarget: targetChain.transaction?.txHash || "",
-        status: targetChain.status || "",
-        symbol: tx.data?.symbol || "",
-        tokenAmount: tx.data?.tokenAmount || "",
-        usdAmount: tx.data?.usdAmount || "",
-      };
+      operations.forEach((ops) => {
+        const sourceChain = ops.sourceChain || {};
+        const targetChain = ops.targetChain || {};
+        const txData = ops.data || {};
+        const content = ops.content || {};
+        const payload = content.payload || {};
+        const standardProps = content.standarizedProperties || {};
+        const vaa = ops.vaa || {};
+
+        rows.push({
+          sequence: ops.sequence || "",
+          id: ops.id || "",
+          emitterChain: ops.emitterChain || "",
+          fromChain: sourceChain.chainId || "",
+          fromAddress: sourceChain.from || "",
+          toChain: targetChain.chainId || "",
+          toAddress: standardProps.toAddress || targetChain.to || "",
+          tokenAddress: standardProps.tokenAddress || "",
+          amount: standardProps.amount || payload.amount || "",
+          fee: standardProps.fee || payload.fee || "",
+          symbol: txData.symbol || "",
+          tokenAmount: txData.tokenAmount || "",
+          usdAmount: txData.usdAmount || "",
+          txHashSource: sourceChain.transaction?.txHash || "",
+          txHashTarget: targetChain.transaction?.txHash || "",
+          statusSource: sourceChain.status || "",
+          statusTarget: targetChain.status || "",
+          feeSourceUSD: sourceChain.feeUSD || "",
+          feeTargetUSD: targetChain.feeUSD || "",
+          timestampSource: sourceChain.timestamp || "",
+          timestampTarget: targetChain.timestamp || "",
+          payloadType: payload.payloadType || "",
+          appId: standardProps.appIds ? standardProps.appIds.join("|") : "",
+        });
+      });
     });
 
     if (rows.length === 0) {
