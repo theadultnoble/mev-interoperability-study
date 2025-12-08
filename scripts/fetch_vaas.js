@@ -9,7 +9,7 @@ import { parseVaas } from "./parse_vaas.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(__dirname, "..", "data", "raw_exports", "vaas.json");
 const EMITTER_CHAIN = "2"; // wormhole chain id for ETH in this API (check API docs)
-const EMITTER_ADDR = "0x3ee18B2214AFF97000D974cf647E7C347E8fa585"; // replace with Token Bridge emitter (hex) or emitter string
+const EMITTER_ADDR = "0x3ee18B2214AFF97000D974cf647E7C347E8fa585";
 // const params = {
 //   page: 1,
 //   pageSize: 5,
