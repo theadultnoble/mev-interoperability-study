@@ -19,7 +19,7 @@ const TRANSACTIONS_PATH = path.join(
   "..",
   "data",
   "raw_exports",
-  "transactions.json"
+  "transactionsmayan.json"
 );
 
 async function loadOperationsFromVaas() {
@@ -37,45 +37,64 @@ async function loadOperationsFromVaas() {
 
 async function fetchOperations(operations) {
   const transactions = [];
-  if (operations && operations.length > 0) {
-    for (const operation of operations) {
-      try {
-        console.log(`Fetching operations for txHash: ${operation.txHash}`);
-        const url = `${BASE}?${new URLSearchParams({
-          txHash: operation.txHash,
-        }).toString()}`;
+  // if (operations && operations.length > 0) {
+  //   for (const operation of operations) {
+  //     try {
+  //       console.log(`Fetching operations for txHash: ${operation.txHash}`);
+  //       const url = `${BASE}?${new URLSearchParams({
+  //         txHash: operation.txHash,
+  //       }).toString()}`;
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  //       const controller = new AbortController();
+  //       const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
+  //       const res = await fetch(url, { signal: controller.signal });
+  //       clearTimeout(timeoutId);
 
-        if (!res.ok) throw new Error(`HTTP ${res.status} ${await res.text()}`);
-        const json = await res.json();
-        transactions.push(json);
-        console.log(`✓ Operation ${operation.sequence} fetched`);
-      } catch (e) {
-        console.error(
-          `✗ Failed to fetch operation ${operation.sequence}:`,
-          e.message
-        );
-      }
-    }
-  }
-  return transactions;
+  //       if (!res.ok) throw new Error(`HTTP ${res.status} ${await res.text()}`);
+  //       const json = await res.json();
+  //       transactions.push(json);
+  //       console.log(`✓ Operation ${operation.sequence} fetched`);
+  //     } catch (e) {
+  //       console.error(
+  //         `✗ Failed to fetch operation ${operation.sequence}:`,
+  //         e.message
+  //       );
+  //     }
+  //   }
+  // }
+
+  //NOTE: Hardcoded Mayan protocol to the URL. Operations no longer need to be passed in.
+  const url = `${BASE}?${new URLSearchParams({
+    sourceChain: "2",
+    targetChain: "1",
+    appId: "MAYAN",
+  }).toString()}`;
+
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+    },
+  });
+
+  const data = await res.json();
+
+  return data.operations;
+
+  // return transactions;
 }
 
 async function main() {
   console.time("fetchOperations");
-  const operations = await loadOperationsFromVaas();
-  const result = await fetchOperations(operations);
+  // const operations = await loadOperationsFromVaas();
+  const result = await fetchOperations();
   console.timeEnd("fetchOperations");
   console.log(`\nFetched ${result.length} operation(s)`);
 
   await fs.mkdir(path.dirname(TRANSACTIONS_PATH), { recursive: true });
   await fs.writeFile(TRANSACTIONS_PATH, JSON.stringify(result, null, 2));
-  console.log(`Saved transactions to: ${TRANSACTIONS_PATH}`);
+  console.log(`Saved operations to: ${TRANSACTIONS_PATH}`);
 }
 
 main().catch((e) => {
